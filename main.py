@@ -1,13 +1,19 @@
 import streamlit as st
 import requests
 import io
+import json
 from PIL import ImageDraw
 from PIL import Image
+from PIL import ImageFont
 
 
 st.title('顔認識アプリ')
+st.write('jpg or JPGのファイルを読み込めます。')
+st.write('顔を認識し、性別と年齢を推測します。')
 
-subscription_key = '32dbcc14bef049d5b3c381cdac8c7f53'
+with open('secret.json') as f:
+    secret_json = json.load(f)   
+subscription_key = secret_json['subscription_key']
 assert subscription_key
 
 face_api_url = 'https://cntr2020.cognitiveservices.azure.com/face/v1.0/detect'
@@ -27,20 +33,25 @@ if uploaded_file is not None:
 
     params = {
         'returnFaceId': 'true',
-        'returnFaceAttributes': 'age,gender,smile'
+        'returnFaceAttributes': 'age,gender'
     }
 
     res = requests.post(face_api_url, params=params, headers=headers, data=binary_img)
 
     results = res.json()
+    fnt = ImageFont.truetype("/Library/Fonts/Arial Bold.ttf", 80)
 
     for result in results:
         rect = result['faceRectangle']
         fab = result['faceAttributes']
-        draw = ImageDraw.Draw(img)
+        d = ImageDraw.Draw(img)
+        text = str(list(fab.values()))
         if fab['gender'] == 'male':
-            draw.rectangle([(rect['left'], rect['top']), (rect['left']+rect['width']), (rect['top']+rect['height'])], fill=None, outline='blue', width=15)
+            d.rectangle([(rect['left'], rect['top']), (rect['left']+rect['width']), (rect['top']+rect['height'])], fill=None, outline='blue', width=15)
+            d.text((rect['left'], rect['top']), text, font=fnt, fill=(255,255,255,255))
+
         else:
-            draw.rectangle([(rect['left'], rect['top']), (rect['left']+rect['width']), (rect['top']+rect['height'])], fill=None, outline='pink', width=15)
-    st.image(img, caption='Uploaded Image', use_column_width=True)
+            d.rectangle([(rect['left'], rect['top']), (rect['left']+rect['width']), (rect['top']+rect['height'])], fill=None, outline='pink', width=15)
+            d.text((rect['left'], rect['top']), text, font=fnt, fill=(255,255,255,255))
+    st.image(img, caption='Faces are recognized', use_column_width=True)
 
