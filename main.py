@@ -11,7 +11,7 @@ st.title('顔認識アプリ')
 st.write('jpg or JPGのファイルを読み込めます。')
 st.write('顔を認識し、性別と年齢を推測します。')
 
-with open('secret.json') as f:
+with open('.ginignore/secret.json') as f:
     secret_json = json.load(f)   
 subscription_key = secret_json['subscription_key']
 assert subscription_key
