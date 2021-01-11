@@ -7,7 +7,7 @@ from PIL import Image
 from PIL import ImageFont
 
 
-st.title('顔認識アプリ')
+st.title('顔を検出します')
 st.write('jpg or JPGのファイルを読み込めます。')
 st.write('顔を認識し、性別と年齢を推測します。')
 
@@ -39,7 +39,8 @@ if uploaded_file is not None:
     res = requests.post(face_api_url, params=params, headers=headers, data=binary_img)
 
     results = res.json()
-    fnt = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 80)
+    
+    fnt = ImageFont.truetype("/Library/Fonts/Arial.ttf", 80)
 
     for result in results:
         rect = result['faceRectangle']
@@ -54,4 +55,3 @@ if uploaded_file is not None:
             d.rectangle([(rect['left'], rect['top']), (rect['left']+rect['width']), (rect['top']+rect['height'])], fill=None, outline='pink', width=15)
             d.text((rect['left'], rect['top']), text, font=fnt, fill=(255,255,255,255))
     st.image(img, caption='Faces are recognized', use_column_width=True)
-
